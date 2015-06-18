@@ -26,8 +26,9 @@ func init() {
 }
 
 type AnalysisResults struct {
-	ID		bson.ObjectId `bson:"_id,omitempty"`
-	
+	ID				bson.ObjectId `bson:"_id,omitempty"`
+	status			string
+	service_name	string
 }
 
 func main() {
@@ -53,12 +54,13 @@ func main() {
 
 	q := c.Find(ServiceQuery)
 	count, _ := q.Count()
-	fmt.Printf("Total Services Found: ", count)
+	fmt.Println("Total Services Found: ", count)
 	if count > 0 {
 		result := AnalysisResults{}
 		iter := q.Iter()
 		for iter.Next(&result) {
-			fmt.Printf("Result:" , result.ID)
+			fmt.Println("Processing: %v | %v | %v" , result.ID, result.service_name, result.status)
+			c.RemoveId(result.ID)
 		}
 		if iter.Err != nil {
 				log.Fatal(iter.Err)
