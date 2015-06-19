@@ -27,8 +27,8 @@ func init() {
 
 type AnalysisResults struct {
 	ID				bson.ObjectId	`bson:"_id,omitempty"`
-	status			string 			`bson:"status"`
-	service_name	string 			`bson:"service_name"`
+	Status			string 			`bson:"status"`
+	Service_name	string 			`bson:"service_name"`
 }
 
 func main() {
@@ -66,7 +66,7 @@ func main() {
 		result := AnalysisResults{}
 		iter := q.Iter()
 		for iter.Next(&result) {
-			fmt.Println("Processing: %v | %v | %v" , result.ID, result.service_name, result.status)
+			fmt.Println("Processing: %v | %v | %v" , result.ID, result.Service_name, result.Status)
 			//c.RemoveId(result.ID)
 		}
 		if err := iter.Close(); err != nil {
