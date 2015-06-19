@@ -6,11 +6,20 @@ import (
 		"log"
 		"gopkg.in/mgo.v2"
 		"gopkg.in/mgo.v2/bson"
+		"strings"
 )
 
 var ServerName string
 var DatabaseName string
 var ServiceName string
+
+// type to store analysis results from db
+type AnalysisResults struct {
+	ID				bson.ObjectId	`bson:"_id,omitempty"`
+	Status			string 			`bson:"status"`
+	Service_name	string 			`bson:"service_name"`
+}
+
 func init() {
 	const (
 		defaultServer 			= "mongodb.example.com"
@@ -25,16 +34,10 @@ func init() {
 	flag.StringVar(&ServiceName, "service", defaultService, defaultServiceHelp)
 }
 
-type AnalysisResults struct {
-	ID				bson.ObjectId	`bson:"_id,omitempty"`
-	Status			string 			`bson:"status"`
-	Service_name	string 			`bson:"service_name"`
-}
-
 func main() {
 	flag.Parse()
 
-	fmt.Println("Connecting to Server ", ServerName)
+	fmt.Println("Connecting to Server: ", ServerName)
 	session, err := mgo.Dial(ServerName)
 	if err != nil {
 		panic(err)
@@ -45,10 +48,13 @@ func main() {
 	session.SetMode(mgo.Monotonic, true)
 
 	// create session for analysis_results
+	fmt.Println("Connecting to Database: ", DatabaseName)
 	c := session.DB(DatabaseName).C("analysis_results")
 
+	services := strings.Split(ServiceName, ",")
+	fmt.Println("Searching for Services: ", services)
 	ServiceQuery := bson.M{
-	    "service_name": bson.M{ "$in": []string{ServiceName} },
+	    "service_name": bson.M{ "$in": services },
 	    "status": bson.M{ "$in": []string{"started", "error"} },
 	    "object_type": "Sample",
 	}
@@ -57,8 +63,6 @@ func main() {
 		"status": 1,
 		"service_name": 1,
 	}
-
-
 	q := c.Find(ServiceQuery).Select(ServiceQueryRestrict)
 	count, _ := q.Count()
 	fmt.Println("Total Services Found: ", count)
@@ -74,6 +78,6 @@ func main() {
 		}
 	}
 
-	fmt.Println("Finished")
+	fmt.Println("Finished cleaning %v services", count)
 
 }
