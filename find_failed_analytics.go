@@ -26,9 +26,9 @@ func init() {
 }
 
 type AnalysisResults struct {
-	ID				bson.ObjectId `bson:"_id,omitempty"`
-	status			string
-	service_name	string
+	ID				bson.ObjectId	`bson:"_id,omitempty"`
+	status			string 			`bson:"status"`
+	service_name	string 			`bson:"service_name"`
 }
 
 func main() {
@@ -50,9 +50,16 @@ func main() {
 	ServiceQuery := bson.M{
 	    "service_name": bson.M{ "$in": []string{ServiceName} },
 	    "status": bson.M{ "$in": []string{"started", "error"} },
-	    "object_type": "Sample"}
+	    "object_type": "Sample",
+	}
+	ServiceQueryRestrict := bson.M{
+		"_id": 1,
+		"status": 1,
+		"service_name": 1,
+	}
 
-	q := c.Find(ServiceQuery)
+
+	q := c.Find(ServiceQuery).Select(ServiceQueryRestrict)
 	count, _ := q.Count()
 	fmt.Println("Total Services Found: ", count)
 	if count > 0 {
@@ -60,9 +67,9 @@ func main() {
 		iter := q.Iter()
 		for iter.Next(&result) {
 			fmt.Println("Processing: %v | %v | %v" , result.ID, result.service_name, result.status)
-			c.RemoveId(result.ID)
+			//c.RemoveId(result.ID)
 		}
-		if iter.Err != nil {
+		if err := iter.Close(); err != nil {
 				log.Fatal(iter.Err)
 		}
 	}
