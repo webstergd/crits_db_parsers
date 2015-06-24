@@ -71,7 +71,7 @@ func main() {
 		iter := q.Iter()
 		for iter.Next(&result) {
 			fmt.Println("Processing: %v | %v | %v" , result.ID, result.Service_name, result.Status)
-			//c.RemoveId(result.ID)
+			c.RemoveId(result.ID)
 		}
 		if err := iter.Close(); err != nil {
 				log.Fatal(iter.Err)
