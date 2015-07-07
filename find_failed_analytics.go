@@ -56,7 +56,6 @@ func main() {
 	ServiceQuery := bson.M{
 	    "service_name": bson.M{ "$in": services },
 	    "status": bson.M{ "$in": []string{"started", "error"} },
-	    "object_type": "Sample",
 	}
 	ServiceQueryRestrict := bson.M{
 		"_id": 1,
