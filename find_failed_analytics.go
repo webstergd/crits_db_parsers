@@ -12,6 +12,7 @@ import (
 var ServerName string
 var DatabaseName string
 var ServiceName string
+var ServiceStatus string
 
 // type to store analysis results from db
 type AnalysisResults struct {
@@ -27,11 +28,14 @@ func init() {
 		defaultDatabase 		= "crits"
 		defaultDatabaseHelp		= "Database name for CRITs"
 		defaultService			= "cuckoo_w_api"
-		defaultServiceHelp		= "Which Service to clean up (separate with , for multiple"		
+		defaultServiceHelp		= "Which service to clean up (separate with ','' for multiple)?"		
+		defaultStatus			= "started,error"
+		defaultStatusHelp		= "What is the status flag should be used to remove? (separate with ','' for multiple)"		
 	)
 	flag.StringVar(&ServerName, "server", defaultServer, defaultServerHelp)
 	flag.StringVar(&DatabaseName, "database", defaultDatabase, defaultDatabaseHelp)
 	flag.StringVar(&ServiceName, "service", defaultService, defaultServiceHelp)
+	flag.StringVar(&ServiceStatus, "status", defaultStatus, defaultStatusHelp)
 }
 
 func main() {
@@ -52,10 +56,11 @@ func main() {
 	c := session.DB(DatabaseName).C("analysis_results")
 
 	services := strings.Split(ServiceName, ",")
-	fmt.Println("Searching for Services: ", services)
+	status := strings.Split(ServiceStatus, ",")
+	fmt.Println("Searching for services: %v with status: %v", services, status)
 	ServiceQuery := bson.M{
-	    "service_name": bson.M{ "$in": services },
-	    "status": bson.M{ "$in": []string{"started", "error"} },
+		"service_name": bson.M{ "$in": services },
+		"status": bson.M{ "$in": status },
 	}
 	ServiceQueryRestrict := bson.M{
 		"_id": 1,
