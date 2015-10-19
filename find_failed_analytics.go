@@ -57,7 +57,7 @@ func main() {
 
 	services := strings.Split(ServiceName, ",")
 	status := strings.Split(ServiceStatus, ",")
-	fmt.Println("Searching for services: %v with status: %v", services, status)
+	fmt.Printf("Searching for services: %v with status: %v\n", services, status)
 	ServiceQuery := bson.M{
 		"service_name": bson.M{ "$in": services },
 		"status": bson.M{ "$in": status },
@@ -74,7 +74,7 @@ func main() {
 		result := AnalysisResults{}
 		iter := q.Iter()
 		for iter.Next(&result) {
-			fmt.Println("Processing: %v | %v | %v" , result.ID, result.Service_name, result.Status)
+			fmt.Printf("Processing: %v | %v | %v\n" , result.ID, result.Service_name, result.Status)
 			c.RemoveId(result.ID)
 		}
 		if err := iter.Close(); err != nil {
@@ -82,6 +82,6 @@ func main() {
 		}
 	}
 
-	fmt.Println("Finished cleaning %v services", count)
+	fmt.Printf("Finished cleaning %v services\n", count)
 
 }
